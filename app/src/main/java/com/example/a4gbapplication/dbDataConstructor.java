@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.a4gbapplication.databaseHelper.adminClass;
 import com.example.a4gbapplication.databaseHelper.blacklistedCreditCardClass;
 import com.example.a4gbapplication.databaseHelper.creditCardClass;
+import com.example.a4gbapplication.databaseHelper.customerClass;
 import com.example.a4gbapplication.databaseHelper.orderStatusClass;
 import com.example.a4gbapplication.databaseHelper.priceConditionClass;
 import com.example.a4gbapplication.databaseHelper.qtyConditionClass;
@@ -135,7 +136,8 @@ public class dbDataConstructor extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if (snapshot.child("ut_name").getValue().toString().equals("customer")) {
                         String ut_ID = snapshot.child("ut_ID").getValue().toString();
-                        databaseUser = FirebaseDatabase.getInstance().getReference("User").child(snapshot.child("ut_name").getValue().toString());
+                        String ut_name = snapshot.child("ut_name").getValue().toString();
+                        databaseUser = FirebaseDatabase.getInstance().getReference("User").child(ut_name);
 
                         String cus_email = email.getText().toString().trim();
                         String cus_contactNum = contactNum.getText().toString().trim();
@@ -153,17 +155,19 @@ public class dbDataConstructor extends AppCompatActivity {
                                     checkLength(confirmPassword, 8, 16) && checkNull(address)
                                     && isPhoneNumValid(cus_contactNum) && isEmailValid(cus_email)) {
                                 if (confirmingPassword(password, confirmPassword)) {
-
-
-
                                     String cus_firstName = firstName.getText().toString().trim();
                                     String cus_LastName = LastName.getText().toString().trim();
                                     String cus_password = password.getText().toString().trim();
                                     String cus_address = address.getText().toString().trim();
                                     String cus_gender = gender.getSelectedItem().toString();
                                     int cus_loyaltyPoint = 0;
-                                    String a = ut_ID;
+                                    String foreignKey = ut_ID;
 
+                                    String id = databaseUser.push().getKey();
+                                    customerClass customerClass = new customerClass(id, cus_email, cus_contactNum,
+                                            cus_firstName, cus_LastName, cus_password,
+                                            cus_address, cus_gender, cus_loyaltyPoint, foreignKey);
+                                    databaseUser.child(ut_name).setValue(customerClass);
                                 }
                             }
                         }
